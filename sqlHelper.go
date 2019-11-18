@@ -47,6 +47,23 @@ func searchByHash(hash string) *File {
 	}
 	return nil
 }
+func searchByName(name string) []*File {
+	rows, err := cur.Query("SELECT * FROM Files WHERE nombre LIKE '%" + name + "%'")
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+	var files []*File
+	for rows.Next() {
+		result := &File{}
+		// Scan the value to []byte
+		err = rows.Scan(&result.ID, &result.Nombre, &result.Hash, &result.Size, &result.Type)
+		if err != nil {
+			panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
+		}
+		files = append(files, result)
+	}
+	return files
+}
 func updateLastSeen(peerID, fileID int) {
 	stmtIns, err := cur.Query("UPDATE Peer_File set last_seen = now() WHERE id_peer = ? AND id_file = ?", peerID, fileID)
 	if err != nil {

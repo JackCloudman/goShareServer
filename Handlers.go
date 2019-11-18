@@ -60,3 +60,34 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%+v\n", request.Files[0])
 	fmt.Printf("%+v\n", request.Users[0])
 }
+func searchFileHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	if r.Method == "OPTIONS" {
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	request := &Response{}
+	err := json.NewDecoder(r.Body).Decode(request)
+	if err != nil {
+		response := &Response{}
+		response.Message = "Error al procesar la solicitud"
+		response.Error = err.Error()
+		writeResponse(w, *response, http.StatusBadRequest)
+		log.Print(err.Error())
+		log.Println(r.Body)
+		return
+	}
+	if request.Message == "" {
+		response := &Response{}
+		response.Message = "No he encontrado ningun archivo"
+		writeResponse(w, *response, http.StatusOK)
+		return
+	}
+	fmt.Printf("%s\n", request.Message)
+	files := searchByName(request.Message)
+	response := &Response{}
+	response.Files = files
+	writeResponse(w, *response, http.StatusOK)
+}

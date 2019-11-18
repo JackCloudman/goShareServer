@@ -13,6 +13,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/getInfo/", searchByHashHandler).Methods("POST")
 	r.HandleFunc("/uploadFile/", uploadFileHandler).Methods("POST")
+	r.HandleFunc("/searchFile/", searchFileHandler).Methods("POST", "OPTIONS")
 	startSql()
 	srv := &http.Server{
 		Handler: r,
