@@ -14,10 +14,11 @@ func main() {
 	r.HandleFunc("/getInfo/", searchByHashHandler).Methods("POST")
 	r.HandleFunc("/uploadFile/", uploadFileHandler).Methods("POST")
 	r.HandleFunc("/searchFile/", searchFileHandler).Methods("POST", "OPTIONS")
+	r.HandleFunc("/getPeers/", getPeersHandler).Methods("POST")
 	startSql()
 	srv := &http.Server{
 		Handler: r,
-		Addr:    "127.0.0.1:8000",
+		Addr:    "192.168.0.3:8000",
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,

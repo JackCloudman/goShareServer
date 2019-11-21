@@ -56,9 +56,11 @@ func uploadFileHandler(w http.ResponseWriter, r *http.Request) {
 		writeResponse(w, *response, http.StatusBadRequest)
 		return
 	}
-	uploadfile(request.Files[0], request.Users[0])
-	fmt.Printf("%+v\n", request.Files[0])
-	fmt.Printf("%+v\n", request.Users[0])
+	for _, f := range request.Files {
+		uploadfile(f, request.Users[0])
+		fmt.Printf("%+v\n", request.Files[0])
+		fmt.Printf("%+v\n", request.Users[0])
+	}
 }
 func searchFileHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -90,4 +92,37 @@ func searchFileHandler(w http.ResponseWriter, r *http.Request) {
 	response := &Response{}
 	response.Files = files
 	writeResponse(w, *response, http.StatusOK)
+}
+func getPeersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	request := &Response{}
+	err := json.NewDecoder(r.Body).Decode(request)
+	if err != nil {
+		response := &Response{}
+		response.Message = "Error al procesar la solicitud"
+		response.Error = err.Error()
+		writeResponse(w, *response, http.StatusBadRequest)
+		log.Print(err.Error())
+		log.Println(r.Body)
+		return
+	}
+	fmt.Printf("%+v\n", request.Files[0])
+	if request.Files == nil {
+		response := &Response{}
+		response.Message = "No he encontrado ningun archivo"
+		writeResponse(w, *response, http.StatusOK)
+		return
+	}
+	file := searchByHash(request.Files[0].Hash)
+	if file == nil {
+		response := &Response{}
+		response.Message = "No he encontrado ningun archivo"
+		writeResponse(w, *response, http.StatusOK)
+		return
+	}
+	response := &Response{}
+	response.Files = []*File{file}
+	response.Users = getPeers(file.ID)
+	writeResponse(w, *response, http.StatusOK)
+
 }

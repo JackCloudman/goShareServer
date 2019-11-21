@@ -87,6 +87,20 @@ func insertPeer(p *Peer) {
 	}
 	p.ID = int(id)
 }
+func getPeers(fileID int) []*Peer {
+	rows, err := cur.Query("SELECT p.ip ip,p.port port FROM Peer_File pf join Peers p on p.id_peer = pf.id_peer join Files f on f.id_file = pf.id_file where f.id_file = ?", fileID)
+	var peers []*Peer
+	for rows.Next() {
+		result := &Peer{}
+		// Scan the value to []byte
+		err = rows.Scan(&result.IP, &result.Port)
+		if err != nil {
+			panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
+		}
+		peers = append(peers, result)
+	}
+	return peers
+}
 func getPeer(ip, port string) *Peer {
 	rows, err := cur.Query("SELECT * FROM Peers WHERE ip = ? AND port = ?", ip, port)
 	if err != nil {
